@@ -1,6 +1,5 @@
 package kwaymergesort;
 
-import exeption.ExceptionHandler;
 import entity.AppConfiguration;
 import entity.NamedScanner;
 
@@ -19,20 +18,19 @@ public class CustomMergeSort<T extends Comparable<T>> {
 
     private void clearOrCreateOutputFile() {
         try {
-            new PrintWriter(appConfiguration.outFilename).close();
+            new PrintWriter(appConfiguration.getOutFilename()).close();
         } catch (FileNotFoundException e) {
-            ExceptionHandler.SetException(appConfiguration.errorInfo,
-                    "The output file could not be created", appConfiguration.outFilename);
+            appConfiguration.SetException(
+                    "The output file could not be created", appConfiguration.getOutFilename());
         }
     }
 
     private void generateNamedScannerList(List<NamedScanner> namedScannerList) {
-        for (String filename : appConfiguration.srcList) {
+        for (String filename : appConfiguration.getSrcList()) {
             try {
                 namedScannerList.add(new NamedScanner(filename, new Scanner(new File(filename))));
             } catch (FileNotFoundException e) {
-                ExceptionHandler.SetException(appConfiguration.errorInfo,
-                        "Source file was not found", filename);
+                appConfiguration.SetException("Source file was not found", filename);
             }
         }
     }
@@ -52,12 +50,12 @@ public class CustomMergeSort<T extends Comparable<T>> {
 
     public void appendStringToOutputFile(String str) {
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(appConfiguration.outFilename, true));
+            BufferedWriter out = new BufferedWriter(new FileWriter(appConfiguration.getOutFilename(), true));
             out.write(str );
             out.close();
         } catch (IOException e) {
-            ExceptionHandler.SetException(appConfiguration.errorInfo,
-                    "Could not be added to the output file", appConfiguration.outFilename);
+            appConfiguration.SetException(
+                    "Could not be added to the output file", appConfiguration.getOutFilename());
         }
     }
 
@@ -74,7 +72,7 @@ public class CustomMergeSort<T extends Comparable<T>> {
                     result = tClass.cast(Integer.parseInt(namedScanner.getScanner().next()));
                     break;
                 } catch (NumberFormatException e) {
-                    ExceptionHandler.SetException(appConfiguration.errorInfo,
+                    appConfiguration.SetException(
                             "Wrong number format", namedScanner.getFilename());
                 }
             }
@@ -88,16 +86,14 @@ public class CustomMergeSort<T extends Comparable<T>> {
             return false;
         }
 
-        if (appConfiguration.isSortDirectionAsc) {
+        if (appConfiguration.isASC()) {
             if (currItem.compareTo(nextItem) > 0) {
-                ExceptionHandler.SetException(appConfiguration.errorInfo,
-                        "Incorrect presorting", filename);
+                appConfiguration.SetException("Incorrect presorting", filename);
                 return true;
             }
         } else {
             if (currItem.compareTo(nextItem) < 0) {
-                ExceptionHandler.SetException(appConfiguration.errorInfo,
-                        "Incorrect presorting", filename);
+                appConfiguration.SetException("Incorrect presorting", filename);
                 return true;
             }
         }
@@ -117,7 +113,8 @@ public class CustomMergeSort<T extends Comparable<T>> {
             currItem = nextItem;
             do {
                 nextItem = getNextItemFromScanner(scanner);
-            } while (isOrderIncorrect(currItem, nextItem, scanner.getFilename()));
+            } while (isOrderIncorrect(currItem, nextItem, scanner.getFilename()) &&
+                    appConfiguration.isSkipUnsorted());
         }
     }
 
@@ -129,7 +126,7 @@ public class CustomMergeSort<T extends Comparable<T>> {
         generateNamedScannerList(namedScannerList);
         generatePrimaryListToMerging(namedScannerList, primaryListToMerging);
 
-        LoserTree<T> loserTree = new LoserTree<>(primaryListToMerging, appConfiguration.isSortDirectionAsc);
+        LoserTree<T> loserTree = new LoserTree<>(primaryListToMerging, appConfiguration.isASC());
 
         int currInd;
         T currItem, nextItem;
@@ -141,7 +138,8 @@ public class CustomMergeSort<T extends Comparable<T>> {
 
             do {
                 nextItem = getNextItemFromScanner(namedScannerList.get(currInd));
-            } while (isOrderIncorrect(currItem, nextItem, namedScannerList.get(currInd).getFilename()));
+            } while (isOrderIncorrect(currItem, nextItem, namedScannerList.get(currInd).getFilename()) &&
+                    appConfiguration.isSkipUnsorted());
 
             if (nextItem != null) {
                 loserTree.setLeaf(nextItem, currInd);

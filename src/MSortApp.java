@@ -1,4 +1,4 @@
-import exeption.ExceptionHandler;
+import entity.DataType;
 import kwaymergesort.CustomMergeSort;
 import entity.AppConfiguration;
 
@@ -11,14 +11,14 @@ public class MSortApp {
         }
 
         CustomMergeSort<?> customMergeSort;
-        if (appConfiguration.isDataTypeString) {
+        if (appConfiguration.getDataType() == DataType.STRING) {
             customMergeSort = new CustomMergeSort<>(String.class, appConfiguration);
         } else {
             customMergeSort = new CustomMergeSort<>(Integer.class, appConfiguration);
         }
         customMergeSort.KWayMergeSort();
 
-        ExceptionHandler.PrintAllExceptions(appConfiguration.errorInfo);
+        appConfiguration.PrintAllExceptions();
     }
 
 }

@@ -1,26 +1,24 @@
 package entity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class AppConfiguration {
 
-    public Boolean isSortDirectionAsc = true;
-    public Boolean isDataTypeString = null;
-    public String outFilename = null;
-    public List<String> srcList = new ArrayList<>();
-    public HashMap<String, HashMap<String, Integer>> errorInfo = new HashMap<>();
+    private Boolean isSortDirectionAsc = true;
+    private DataType dataType = null;
+    private String outFilename = null;
+    private List<String> srcList = new ArrayList<>();
+    private final HashMap<String, HashMap<String, Integer>> exceptionInfo = new HashMap<>();
+    private boolean skipUnsorted = true;
 
     public AppConfiguration(String[] args) {
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-s":
-                    isDataTypeString = true;
+                    dataType = DataType.STRING;
                     break;
                 case "-i":
-                    isDataTypeString = false;
+                    dataType = DataType.INTEGER;
                     break;
                 case "-a":
                     isSortDirectionAsc = true;
@@ -28,10 +26,12 @@ public class AppConfiguration {
                 case "-d":
                     isSortDirectionAsc = false;
                     break;
+                case "-p":
+                    skipUnsorted = false;
+                    break;
                 default:
                     outFilename = args[i];
                     srcList = Arrays.asList(Arrays.copyOfRange(args, i + 1, args.length));
-
                     return;
             }
         }
@@ -44,7 +44,7 @@ public class AppConfiguration {
             System.out.println("Output file name not specified!");
             condition = true;
         }
-        if (isDataTypeString == null) {
+        if (dataType == null) {
             System.out.println("Wrong datatype!");
             condition = true;
         }
@@ -56,44 +56,51 @@ public class AppConfiguration {
         return condition;
     }
 
-//    public boolean isSortDirectionAsc() {
-//        return isSortDirectionAsc;
-//    }
-//
-//    public void setSortDirectionAsc(boolean sortDirectionAsc) {
-//        isSortDirectionAsc = sortDirectionAsc;
-//    }
-//
-//    public Boolean getDataTypeString() {
-//        return isDataTypeString;
-//    }
-//
-//    public void setDataTypeString(Boolean dataTypeString) {
-//        isDataTypeString = dataTypeString;
-//    }
-//
-//    public HashMap<String, HashMap<String, Integer>> getErrorInfo() {
-//        return errorInfo;
-//    }
-//
-//    public void setErrorInfo(HashMap<String, HashMap<String, Integer>> errorInfo) {
-//        this.errorInfo = errorInfo;
-//    }
-//
-//    public String getOutFilename() {
-//        return outFilename;
-//    }
-//
-//    public void setOutFilename(String outFilename) {
-//        this.outFilename = outFilename;
-//    }
-//
-//    public List<String> getSrcList() {
-//        return srcList;
-//    }
-//
-//    public void setSrcList(List<String> srcList) {
-//        this.srcList = srcList;
-//    }
+    public boolean isASC() {
+        return isSortDirectionAsc;
+    }
+
+    public DataType getDataType() {
+        return dataType;
+    }
+
+    public String getOutFilename() {
+        return outFilename;
+    }
+
+    public List<String> getSrcList() {
+        return srcList;
+    }
+
+    public boolean isSkipUnsorted() {
+        return skipUnsorted;
+    }
+
+    public void SetException(String excName, String excSource) {
+        if (exceptionInfo.containsKey(excName)) {
+            if (exceptionInfo.get(excName).containsKey(excSource)) {
+                exceptionInfo.get(excName).put(excSource, exceptionInfo.get(excName).get(excSource) + 1);
+            } else {
+                exceptionInfo.get(excName).put(excSource, 1);
+            }
+        } else {
+            exceptionInfo.put(excName, new HashMap<>());
+            exceptionInfo.get(excName).put(excSource, 1);
+        }
+    }
+
+    public void PrintAllExceptions() {
+        if (exceptionInfo.size() > 0) {
+            System.out.println("Sorting completed. Resolved exceptions raised during execution:");
+            for (Map.Entry<String, HashMap<String, Integer>> entry : exceptionInfo.entrySet()) {
+                System.out.printf("\t%s:%n", entry.getKey());
+                for (Map.Entry<String, Integer> data : entry.getValue().entrySet()) {
+                    System.out.printf("\t\t%s /%d times/%n", data.getKey(), data.getValue());
+                }
+            }
+        } else {
+            System.out.println("Sorting completed successfully!");
+        }
+    }
 
 }
