@@ -11,10 +11,10 @@ public class MSortApp {
         }
 
         CustomMergeSort<?> customMergeSort;
-        if (appConfiguration.getDataType() == DataType.STRING) {
-            customMergeSort = new CustomMergeSort<>(String.class, appConfiguration);
-        } else {
+        if (appConfiguration.getDataType() == DataType.INTEGER) {
             customMergeSort = new CustomMergeSort<>(Integer.class, appConfiguration);
+        } else {
+            customMergeSort = new CustomMergeSort<>(String.class, appConfiguration);
         }
         customMergeSort.KWayMergeSort();
 

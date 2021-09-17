@@ -51,7 +51,7 @@ public class CustomMergeSort<T extends Comparable<T>> {
     public void appendStringToOutputFile(String str) {
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(appConfiguration.getOutFilename(), true));
-            out.write(str );
+            out.write(str);
             out.close();
         } catch (IOException e) {
             appConfiguration.SetException(
@@ -62,11 +62,7 @@ public class CustomMergeSort<T extends Comparable<T>> {
     public T getNextItemFromScanner(NamedScanner namedScanner) {
         T result = null;
 
-        if (tClass == String.class) {
-            if (namedScanner.getScanner().hasNext()) {
-                result = tClass.cast(namedScanner.getScanner().next());
-            }
-        } else if (tClass == Integer.class) {
+        if (tClass == Integer.class) {
             while (namedScanner.getScanner().hasNext()) {
                 try {
                     result = tClass.cast(Integer.parseInt(namedScanner.getScanner().next()));
@@ -75,6 +71,10 @@ public class CustomMergeSort<T extends Comparable<T>> {
                     appConfiguration.SetException(
                             "Wrong number format", namedScanner.getFilename());
                 }
+            }
+        } else {
+            if (namedScanner.getScanner().hasNext()) {
+                result = tClass.cast(namedScanner.getScanner().next());
             }
         }
 
@@ -105,9 +105,9 @@ public class CustomMergeSort<T extends Comparable<T>> {
         T nextItem = getNextItemFromScanner(scanner);
         while (currItem != null) {
             if (nextItem == null) {
-                appendStringToOutputFile(currItem.toString());
+                appendStringToOutputFile(String.format("%s", currItem));
             } else {
-                appendStringToOutputFile(currItem.toString() + "\n");
+                appendStringToOutputFile(String.format("%s\n", currItem));
             }
 
             currItem = nextItem;
@@ -125,6 +125,9 @@ public class CustomMergeSort<T extends Comparable<T>> {
         clearOrCreateOutputFile();
         generateNamedScannerList(namedScannerList);
         generatePrimaryListToMerging(namedScannerList, primaryListToMerging);
+        if (primaryListToMerging.isEmpty()) {
+            return;
+        }
 
         LoserTree<T> loserTree = new LoserTree<>(primaryListToMerging, appConfiguration.isASC());
 
@@ -134,7 +137,7 @@ public class CustomMergeSort<T extends Comparable<T>> {
             currInd = loserTree.getWinner();
             currItem = loserTree.getLeaf(currInd);
 
-            appendStringToOutputFile(currItem.toString() + "\n");
+            appendStringToOutputFile(String.format("%s\n", currItem));
 
             do {
                 nextItem = getNextItemFromScanner(namedScannerList.get(currInd));
