@@ -38,22 +38,27 @@ public class AppConfiguration {
     }
 
     public boolean isSettingsIncorrect() {
-        boolean condition = false;
+        List<String> errorList = new ArrayList<>();
 
         if (outFilename == null) {
-            System.out.println("Output file name not specified!");
-            condition = true;
+            errorList.add("Output file name not specified!");
         }
         if (dataType == null) {
-            System.out.println("Wrong datatype!");
-            condition = true;
+            errorList.add("Wrong datatype!");
         }
         if (srcList.size() < 1) {
-            System.out.println("No source data file specified!");
-            condition = true;
+            errorList.add("No source data file specified!");
         }
 
-        return condition;
+        if (errorList.isEmpty()) {
+            return false;
+        } else {
+            System.out.println("Sorting failed. Critical errors:");
+            for (String error : errorList) {
+                System.out.printf("\t%s%n", error);
+            }
+            return true;
+        }
     }
 
     public boolean isASC() {
